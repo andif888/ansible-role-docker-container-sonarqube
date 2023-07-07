@@ -1,0 +1,309 @@
+---
+# defaults file for ansible-role-docker-container-sonarqube
+
+# @var docker_container_sonarqube_database_name:description: Name of the database.
+docker_container_sonarqube_database_name: "sonarqube"
+
+# @var docker_container_sonarqube_database_user:description: Name of the database user.
+docker_container_sonarqube_database_user: "sonarqube"
+
+# @var docker_container_sonarqube_database_password:description: Password of the database user.
+docker_container_sonarqube_database_password: "sonarqubesomethingsecret8888"
+
+
+# ------------
+# Docker image
+# ------------
+
+# @var docker_image_sonarqube_name:description: Repository path and tag for the container image.
+docker_image_sonarqube_name: "sonarqube:10-community"
+
+# @var docker_image_sonarqube_pull:description: Indicate to always pull the docker image.
+docker_image_sonarqube_pull: false
+
+# ----------------
+# Docker container
+# ----------------
+
+# @var docker_container_sonarqube_name:description: Name for the container
+docker_container_sonarqube_name: "sonarqube"
+
+# @var docker_container_sonarqube_image:description: >
+# Repository path and tag used to create the container.
+# If an image is not found or pull is true, the image will be pulled from the registry.
+# If no tag is included, latest will be used.
+# @end
+docker_container_sonarqube_image: "{{ docker_image_sonarqube_name }}"
+
+# @var docker_container_sonarqube_volume_dir:description: >
+# Volume mount host directory, where Treafik config files are stored.
+# @end
+docker_container_sonarqube_volume_dir: "{{ docker_container__base__volume_dir }}/{{ docker_container_sonarqube_name }}"
+
+
+# @var docker_container_sonarqube_env:description: >
+# Dictionery of key,value pairs for docker
+# environment variables to configure sonarqube.
+# @end
+docker_container_sonarqube_env:
+  SONAR_JDBC_URL: "jdbc:postgresql://database:5432/{{ docker_container_sonarqube_database_name }}"
+  SONAR_JDBC_USERNAME: "{{ docker_container_sonarqube_database_user }}"
+  SONAR_JDBC_PASSWORD: "{{ docker_container_sonarqube_database_password }}"
+
+# @var docker_container_sonarqube_volumes:description: >
+# List of volumes to mount within the container.
+# @end
+docker_container_sonarqube_volumes:
+  - "{{ docker_container_sonarqube_volume_dir }}/data:/opt/sonarqube/data"
+  - "{{ docker_container_sonarqube_volume_dir }}/extensions:/opt/sonarqube/extensions"
+  - "{{ docker_container_sonarqube_volume_dir }}/logs:/opt/sonarqube/logs"
+
+# @var docker_container_sonarqube_labels:description: >
+# Dictionary of key value pairs for container labels.
+#
+# Example:
+#
+# ```yaml
+#
+# docker_container_sonarqube_labels:
+#
+#   traefik.enable: "true"
+#
+# ```
+#
+# @end
+docker_container_sonarqube_labels: {}
+
+# @var docker_container_sonarqube_networks:description: >
+# List of networks the container belongs to.
+# @end
+docker_container_sonarqube_networks:
+  - name: "{{ docker_network_sonarqube_name }}"
+    links:
+      - "{{ docker_container_sonarqubedb_name }}:database"
+
+# @var docker_container_sonarqube_ports:description: >
+# List of ports to publish from the container to the host.
+# @end
+docker_container_sonarqube_ports:
+  - "9000:9000"
+
+# @var docker_container_sonarqube_comparisons:description: >
+# Allows to specify how properties of existing containers are compared with module options 
+# to decide whether the container should be recreated / updated or not.
+# @end
+docker_container_sonarqube_comparisons:
+  image: strict
+  env: strict
+  volumes: strict
+
+# docker_container_sonarqube_auto_remove: no
+# docker_container_sonarqube_detach: yes
+# docker_container_sonarqube_env_file: "{{ docker_container_sonarqube_volume_dir }}/.env"
+# docker_container_sonarqube_init: no
+# docker_container_sonarqube_interactive: no
+# docker_container_sonarqube_keep_volumes: yes
+# docker_container_sonarqube_memory: "0"
+# docker_container_sonarqube_paused: no
+# docker_container_sonarqube_privileged: no
+# docker_container_sonarqube_pull: no
+# docker_container_sonarqube_read_only: no
+# docker_container_sonarqube_recreate: no
+# docker_container_sonarqube_restart: no
+# docker_container_sonarqube_restart_policy: always
+# docker_container_sonarqube_state: started
+# docker_container_sonarqube_tty: no
+# docker_container_sonarqube_networks_cli_compatible: yes
+
+# --------------
+# Docker network
+# --------------
+
+# @var docker_network_sonarqube_name:description: >
+# Name of the docker network created for sonarqube.
+# @end
+docker_network_sonarqube_name: "{{ docker_container_sonarqube_name }}_backend"
+# docker_network_sonarqube_driver: bridge
+# docker_network_sonarqube_attachable: yes
+# docker_network_sonarqube_enable_ipv6: no
+# docker_network_sonarqube_internal: no
+
+# -------------
+# Restic Backup
+# -------------
+# @var docker_container_sonarqube_restic_enable:description: >
+# Enable restic backup for the container's mounted volumes.
+# @end
+docker_container_sonarqube_restic_enable: false
+
+# @var docker_container_sonarqube_restic_s3_endpoint:description: >
+# Minio S3 endpoint for restic backup storage.
+#
+# Example:
+#
+# ```yaml
+#
+# docker_container__base__restic_s3_endpoint: "https://minio.{{ dns_domain }}"
+#
+# docker_container_sonarqube_restic_s3_endpoint: "{{ docker_container__base__restic_s3_endpoint }}"
+#
+# ```
+#
+# @end
+docker_container_sonarqube_restic_s3_endpoint: "{{ docker_container__base__restic_s3_endpoint }}"
+
+# @var docker_container_sonarqube_restic_s3_bucket_name:description: >
+# Minio S3 bucket name for restic backup storage.
+# @end
+docker_container_sonarqube_restic_s3_bucket_name: "restic-{{ docker_container_sonarqube_name }}"
+
+# @var docker_container_sonarqube_restic_s3_repo:description: >
+# Minio S3 repo URL for restic backup storage.
+# @end
+docker_container_sonarqube_restic_s3_repo: "s3:{{ docker_container_sonarqube_restic_s3_endpoint }}/{{ docker_container_sonarqube_restic_s3_bucket_name }}"
+
+# @var docker_container_sonarqube_restic_s3_repo_password:description: >
+# Minio S3 repo password for restic backup storage.
+# @end
+docker_container_sonarqube_restic_s3_repo_password: "{{ docker_container__base__restic_s3_repo_password }}"
+
+# @var docker_container_sonarqube_restic_s3_repo_access_key:description: >
+# Minio S3 repo access key for restic backup storage.
+# @end
+docker_container_sonarqube_restic_s3_repo_access_key: "{{ docker_container__base__restic_s3_repo_access_key }}"
+# @var docker_container_sonarqube_restic_s3_repo_secret_key:description: >
+# Minio S3 repo secret key for restic backup storage.
+# @end
+docker_container_sonarqube_restic_s3_repo_secret_key: "{{ docker_container__base__restic_s3_repo_secret_key }}"
+
+# docker_container_sonarqube_restic_s3_seed_repo: "s3:{{ docker_container__base__restic_s3_seed_endpoint }}/{{ docker_container_sonarqube_restic_s3_bucket_name }}"
+# docker_container_sonarqube_restic_s3_seed_repo_password: "{{ docker_container__base__restic_s3_repo_password }}"
+
+# @var docker_container_sonarqube_restic_retention:description: >
+# Retention settions for `restic forget` after the `restic backup`.
+# @end
+docker_container_sonarqube_restic_retention:
+  keep_last: 1
+  # keep_hourly: 1
+  keep_daily: 7
+  keep_weekly: 4
+  # keep_monthly: 6
+  # keep_yearly
+
+# @var docker_container_sonarqube_restic_tag:description: >
+# Tag for the `restic backup` command
+# @end
+docker_container_sonarqube_restic_tag: "{{ docker_container_sonarqube_name }}"
+
+
+# ------------
+# Docker image
+# ------------
+
+# @var docker_image_sonarqubedb_name:description: Repository path and tag for the container image.
+docker_image_sonarqubedb_name: "postgres:12"
+
+# @var docker_image_sonarqubedb_pull:description: Indicate to always pull the docker image.
+docker_image_sonarqubedb_pull: false
+
+# ----------------
+# Docker container
+# ----------------
+
+# @var docker_container_sonarqubedb_name:description: Name for the container
+docker_container_sonarqubedb_name: "sonarqubedb"
+
+# @var docker_container_sonarqubedb_image:description: >
+# Repository path and tag used to create the container.
+# If an image is not found or pull is true, the image will be pulled from the registry.
+# If no tag is included, latest will be used.
+# @end
+docker_container_sonarqubedb_image: "{{ docker_image_sonarqubedb_name }}"
+
+# @var docker_container_sonarqubedb_volume_dir:description: >
+# Volume mount host directory, where Treafik config files are stored.
+# @end
+docker_container_sonarqubedb_volume_dir: "{{ docker_container__base__volume_dir }}/{{ docker_container_sonarqube_name }}"
+
+# @var docker_container_sonarqubedb_env:description: >
+# Dictionery of key,value pairs for docker
+# environment variables to configure sonarqubedb.
+# @end
+docker_container_sonarqubedb_env:
+  POSTGRES_USER: "{{ docker_container_sonarqube_database_user }}"
+  POSTGRES_PASSWORD: "{{ docker_container_sonarqube_database_password }}"
+  POSTGRES_DB: "{{ docker_container_sonarqube_database_name }}"
+
+# @var docker_container_sonarqubedb_volumes:description: >
+# List of volumes to mount within the container.
+# @end
+docker_container_sonarqubedb_volumes:
+  - "{{ docker_container_sonarqube_volume_dir }}/postgres:/var/lib/postgresql"
+
+# @var docker_container_sonarqubedb_labels:description: >
+# Dictionary of key value pairs for container labels.
+#
+# Example:
+#
+# ```yaml
+#
+# docker_container_sonarqubedb_labels:
+#
+#   traefik.enable: "true"
+#
+# ```
+#
+# @end
+docker_container_sonarqubedb_labels: {}
+
+# @var docker_container_sonarqubedb_networks:description: >
+# List of networks the container belongs to.
+# @end
+docker_container_sonarqubedb_networks:
+  - name: "{{ docker_network_sonarqubedb_name }}"
+
+# @var docker_container_sonarqubedb_ports:description: >
+# List of ports to publish from the container to the host.
+# @end
+docker_container_sonarqubedb_ports: []
+
+# @var docker_container_sonarqubedb_comparisons:description: >
+# Allows to specify how properties of existing containers are compared with module options 
+# to decide whether the container should be recreated / updated or not.
+# @end
+docker_container_sonarqubedb_comparisons:
+  image: strict
+  env: strict
+  volumes: strict
+
+# docker_container_sonarqubedb_auto_remove: no
+# docker_container_sonarqubedb_detach: yes
+# docker_container_sonarqubedb_env_file: "{{ docker_container_sonarqube_volume_dir }}/.env"
+# docker_container_sonarqubedb_init: no
+# docker_container_sonarqubedb_interactive: no
+# docker_container_sonarqubedb_keep_volumes: yes
+# docker_container_sonarqubedb_memory: "0"
+# docker_container_sonarqubedb_paused: no
+# docker_container_sonarqubedb_privileged: no
+# docker_container_sonarqubedb_pull: no
+# docker_container_sonarqubedb_purge_networks: yes
+# docker_container_sonarqubedb_read_only: no
+# docker_container_sonarqubedb_recreate: no
+# docker_container_sonarqubedb_restart: no
+# docker_container_sonarqubedb_restart_policy: always
+# docker_container_sonarqubedb_state: started
+# docker_container_sonarqubedb_tty: no
+# docker_container_sonarqubedb_networks_cli_compatible: yes
+
+# --------------
+# Docker network
+# --------------
+
+# @var docker_network_sonarqubedb_name:description: >
+# Name of the docker network created for sonarqubedb.
+# @end
+docker_network_sonarqubedb_name: "{{ docker_container_sonarqube_name }}_backend"
+# docker_network_sonarqubedb_driver: bridge
+# docker_network_sonarqubedb_attachable: yes
+# docker_network_sonarqubedb_enable_ipv6: no
+# docker_network_sonarqubedb_internal: no

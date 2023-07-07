@@ -1,0 +1,20 @@
+---
+- name: remove_docker_container {{ docker_container_sonarqube_name }}
+  community.general.docker_container: 
+    name: "{{ docker_container_sonarqube_name }}"    
+    container_default_behavior: no_defaults
+    keep_volumes: "{{ docker_container_sonarqube_keep_volumes | default('yes') }}"
+    state: absent
+
+- name: remove_docker_container {{ docker_container_sonarqubedb_name }}
+  community.general.docker_container: 
+    name: "{{ docker_container_sonarqubedb_name }}"    
+    container_default_behavior: no_defaults
+    keep_volumes: "{{ docker_container_sonarqubedb_keep_volumes | default('yes') }}"
+    state: absent
+
+- name: remove_docker_network {{ docker_network_sonarqube_name }}
+  community.general.docker_network:
+    name: "{{ docker_network_sonarqube_name }}"
+    force: yes
+    state: absent

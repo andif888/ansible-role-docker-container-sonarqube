@@ -1,0 +1,105 @@
+---
+# tasks file for ansible-role-docker-container-sonarqube
+
+- name: docker_container - {{ docker_container_sonarqube_volume_dir }}
+  ansible.builtin.file:
+    path: "{{ docker_container_sonarqube_volume_dir }}/{{ item }}"
+    state: directory
+    owner: 999
+    group: 999
+    mode: "777"
+  loop:
+    - "data"
+    - "extensions"
+    - "logs"
+
+- name: docker_image pull {{ docker_image_sonarqubedb_name }}
+  community.docker.docker_image:
+    name: '{{ docker_image_sonarqubedb_name }}'
+    force_source: true
+    source: pull
+    # Select platform for pulling. If not specified, will pull whatever docker prefers.
+    pull:
+      platform: amd64
+  when: 
+    - docker_image_sonarqubedb_pull
+
+- name: docker_image pull {{ docker_image_sonarqube_name }}
+  community.docker.docker_image:
+    name: '{{ docker_image_sonarqube_name }}'
+    source: pull
+    # Select platform for pulling. If not specified, will pull whatever docker prefers.
+    pull:
+      platform: amd64
+  when: 
+    - docker_image_sonarqube_pull
+
+- name: docker_network {{ docker_container_sonarqube_name }}
+  community.docker.docker_network:
+    name: "{{ docker_network_sonarqube_name }}"
+    driver: "{{ docker_network_sonarqube_driver | default('bridge') }}"
+    attachable: "{{ docker_network_sonarqube_attachable | default('yes') }}"
+    enable_ipv6: "{{ docker_network_sonarqube_enable_ipv6 | default('no') }}"
+    internal: "{{ docker_network_sonarqube_internal | default('no') }}"
+    state: present
+
+- name: docker_container {{ docker_container_sonarqubedb_name }}
+  community.docker.docker_container:
+    name: "{{ docker_container_sonarqubedb_name }}"
+    comparisons: "{{ docker_container_sonarqubedb_comparisons }}"
+    image: "{{ docker_container_sonarqubedb_image }}"
+    state: "{{ docker_container_sonarqubedb_state | default('started') }}"
+    recreate: "{{ docker_container_sonarqubedb_recreate | default('no') }}"
+    restart: "{{ docker_container_sonarqubedb_restart | default('no') }}"
+    restart_policy: "{{ docker_container_sonarqubedb_restart_policy | default('always') }}"
+    container_default_behavior: no_defaults
+    auto_remove: "{{ docker_container_sonarqubedb_auto_remove | default('no') }}"
+    detach: "{{ docker_container_sonarqubedb_detach | default('yes') }}"
+    init: "{{ docker_container_sonarqubedb_init | default('no') }}"
+    interactive: "{{ docker_container_sonarqubedb_interactive | default('no') }}"
+    keep_volumes: "{{ docker_container_sonarqubedb_keep_volumes | default('yes') }}"
+    memory: "{{ docker_container_sonarqubedb_memory | default('0') }}"
+    paused: "{{ docker_container_sonarqubedb_paused | default('no') }}"
+    privileged: "{{ docker_container_sonarqubedb_privileged | default('no') }}"
+    read_only: "{{ docker_container_sonarqubedb_read_only | default('no') }}"
+    tty: "{{ docker_container_sonarqubedb_tty | default('no') }}"
+    env_file: "{{ docker_container_sonarqubedb_env_file | default(omit) }}"
+    env: "{{ docker_container_sonarqubedb_env | default(omit) }}"
+    volumes: "{{ docker_container_sonarqubedb_volumes | default(omit) }}"
+    labels: "{{ docker_container_sonarqubedb_labels | default(omit) }}"
+    networks_cli_compatible: "{{ docker_container_sonarqubedb_networks_cli_compatible | default('yes') }}"
+    network_mode: "{{ docker_network_sonarqubedb_name }}"
+    pull: "{{ docker_container_sonarqubedb_pull | default('no') }}"
+    networks: "{{ docker_container_sonarqubedb_networks }}"
+    published_ports: "{{ docker_container_sonarqubedb_ports | default(omit) }}"
+
+- name: docker_container {{ docker_container_sonarqube_name }}
+  community.docker.docker_container:
+    name: "{{ docker_container_sonarqube_name }}"
+    comparisons: "{{ docker_container_sonarqube_comparisons }}"
+    image: "{{ docker_container_sonarqube_image }}"
+    state: "{{ docker_container_sonarqube_state | default('started') }}"
+    recreate: "{{ docker_container_sonarqube_recreate | default('no') }}"
+    restart: "{{ docker_container_sonarqube_restart | default('no') }}"
+    restart_policy: "{{ docker_container_sonarqube_restart_policy | default('always') }}"
+    container_default_behavior: no_defaults
+    auto_remove: "{{ docker_container_sonarqube_auto_remove | default('no') }}"
+    detach: "{{ docker_container_sonarqube_detach | default('yes') }}"
+    init: "{{ docker_container_sonarqube_init | default('no') }}"
+    interactive: "{{ docker_container_sonarqube_interactive | default('no') }}"
+    keep_volumes: "{{ docker_container_sonarqube_keep_volumes | default('yes') }}"
+    memory: "{{ docker_container_sonarqube_memory | default('0') }}"
+    paused: "{{ docker_container_sonarqube_paused | default('no') }}"
+    privileged: "{{ docker_container_sonarqube_privileged | default('no') }}"
+    read_only: "{{ docker_container_sonarqube_read_only | default('no') }}"
+    tty: "{{ docker_container_sonarqube_tty | default('no') }}"
+    env_file: "{{ docker_container_sonarqube_env_file | default(omit) }}"
+    env: "{{ docker_container_sonarqube_env | default(omit) }}"
+    volumes: "{{ docker_container_sonarqube_volumes | default(omit) }}"
+    labels: "{{ docker_container_sonarqube_labels | default(omit) }}"
+    networks_cli_compatible: "{{ docker_container_sonarqube_networks_cli_compatible | default('yes') }}"
+    network_mode: "{{ docker_network_sonarqube_name }}"
+    pull: "{{ docker_container_sonarqube_pull | default('no') }}"
+    networks: "{{ docker_container_sonarqube_networks }}"
+    published_ports: "{{ docker_container_sonarqube_ports | default(omit) }}"
+  register: docker_container_sonarqube_result

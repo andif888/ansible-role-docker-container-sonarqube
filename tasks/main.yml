@@ -1,0 +1,75 @@
+---
+# @tag docker-container-prereq-all:description: Ensure all pre-requisites are installed
+# @tag docker-container-prereq-sonarqube:description: Ensure all pre-requisites for sonarqube are installed
+- ansible.builtin.import_tasks: "{{ role_path }}/tasks/prereq.yml"
+  tags:
+    - docker-container-prereq-all
+    - docker-container-prereq-sonarqube
+
+# @tag docker-container-restore-all:description: Run restic restore for all restic enabled containers.
+# @tag docker-container-restore-sonarqube:description: Run restic restore for sonarqube if restic is enabled.
+- ansible.builtin.import_tasks: "{{ role_path }}/tasks/restore.yml"
+  tags:
+    - never
+    - docker-container-restore-all
+    - docker-container-restore-sonarqube
+  when:
+    - docker_container_sonarqube_restic_enable
+
+# @tag docker-container-setup-all:description: Run setup task for all containers.
+# @tag docker-container-setup-sonarqube:description: Run setup task for sonarqube.
+- ansible.builtin.import_tasks: "{{ role_path }}/tasks/setup.yml"
+  tags:
+    - docker-container-setup-all
+    - docker-container-setup-sonarqube
+    - docker-container-restore-all
+    - docker-container-restore-sonarqube
+
+# @tag docker-container-backup-init-all:description: Run init backup task for all container.
+# @tag docker-container-backup-init-sonarqube:description: Run init backup task for sonarqube if restic is enabled.
+- ansible.builtin.import_tasks: "{{ role_path }}/tasks/backup_init.yml"
+  tags:
+    - docker-container-setup-all
+    - docker-container-setup-sonarqube
+    - docker-container-backup-init-all
+    - docker-container-backup-init-sonarqube
+  when:
+    - docker_container_sonarqube_restic_enable
+
+# @tag docker-container-remove-all:description: Remove all containers.
+# @tag docker-container-remove-sonarqube:description: Remove sonarqube.
+- ansible.builtin.import_tasks: "{{ role_path }}/tasks/remove.yml"
+  tags:
+    - never
+    - docker-container-remove-all
+    - docker-container-remove-sonarqube
+    - docker-container-purge-all
+    - docker-container-purge-sonarqube
+
+# @tag docker-container-purge-all:description: Remove all containers and delete volume mounts.
+# @tag docker-container-purge-sonarqube:description: Remove sonarqube and delete volume mounts.
+- ansible.builtin.import_tasks: "{{ role_path }}/tasks/purge.yml"
+  tags:
+    - never
+    - docker-container-purge-all
+    - docker-container-purge-sonarqube
+
+# @tag docker-container-backup-all:description: Backup all containers' volume mounts.
+# @tag docker-container-backup-sonarqube:description: Backup sonarqube volume mounts.
+- ansible.builtin.import_tasks: "{{ role_path }}/tasks/backup.yml"
+  tags:
+    - never
+    - docker-container-backup-all
+    - docker-container-backup-sonarqube
+  when:
+    - docker_container_sonarqube_restic_enable
+
+# @tag docker-container-backup-list-all:description: List all containers' backups.
+# @tag docker-container-backup-list-sonarqube:description: List sonarqube backups.
+- ansible.builtin.import_tasks: "{{ role_path }}/tasks/backup_list.yml"
+  tags:
+    - never
+    - docker-container-backup-list-all
+    - docker-container-backup-list-sonarqube
+  when:
+    - docker_container_sonarqube_restic_enable
