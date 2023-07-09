@@ -5,9 +5,9 @@
   ansible.builtin.file:
     path: "{{ docker_container_sonarqube_volume_dir }}/{{ item }}"
     state: directory
-    owner: 999
-    group: 999
-    mode: "777"
+    owner: 1000
+    group: 1000
+    mode: "755"
   loop:
     - "data"
     - "extensions"
