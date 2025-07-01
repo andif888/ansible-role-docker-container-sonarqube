@@ -16,7 +16,7 @@ docker_container_sonarqube_database_password: "sonarqubesomethingsecret8888"
 # ------------
 
 # @var docker_image_sonarqube_name:description: Repository path and tag for the container image.
-docker_image_sonarqube_name: "sonarqube:10-community"
+docker_image_sonarqube_name: "sonarqube:community"
 
 # @var docker_image_sonarqube_pull:description: Indicate to always pull the docker image.
 docker_image_sonarqube_pull: false
@@ -201,7 +201,7 @@ docker_container_sonarqube_restic_tag: "{{ docker_container_sonarqube_name }}"
 # ------------
 
 # @var docker_image_sonarqubedb_name:description: Repository path and tag for the container image.
-docker_image_sonarqubedb_name: "postgres:12"
+docker_image_sonarqubedb_name: "postgres:17"
 
 # @var docker_image_sonarqubedb_pull:description: Indicate to always pull the docker image.
 docker_image_sonarqubedb_pull: false
@@ -239,6 +239,8 @@ docker_container_sonarqubedb_env:
 # @end
 docker_container_sonarqubedb_volumes:
   - "{{ docker_container_sonarqube_volume_dir }}/postgres:/var/lib/postgresql"
+  - "{{ docker_container_sonarqube_volume_dir }}/postgres_data:/var/lib/postgresql/data"
+  
 
 # @var docker_container_sonarqubedb_labels:description: >
 # Dictionary of key value pairs for container labels.
